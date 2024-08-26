@@ -8,7 +8,7 @@
 				<a href="https://biokic.asu.edu" target="_blank" title="Biodiversity Knowledge Integration Center"><img src="<?php echo $CLIENT_ROOT; ?>/images/layout/logo-asu-biokic.png" style="width:180px" /></a>
 			</p>
 			<div style="height:50px;margin-left:auto;margin-right:auto;padding:5px 30px;text-align:center;display:table;" >
-				The PCC, and this data portal, were made possible by funding from the National Science Foundation’s
+				The PCC, and this data portal, were made possible by funding from the U.S. National Science Foundation’s
 				Advancing Digitization of Biological Collections (ADBC) program, grant numbers
 				<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802504&HistoricalAwards=false" target="_blank">1802504</a>,
 				<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802352&HistoricalAwards=false" target="_blank">1802352</a>,
