@@ -16,11 +16,6 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 					<div class="welcome-text bottom-breathing-room-rel">
 						<?= $LANG['H_WELCOME'] . ' ' . $USER_DISPLAY_NAME ?>!
 					</div>
-					if($USER_DISPLAY_NAME){
-						?>
-						<span style="">
-							Welcome <?php echo $USER_DISPLAY_NAME; ?>!
-						</span>
 						<span id="profile">
 							<form name="profileForm" method="post" action="<?= $CLIENT_ROOT . '/profile/viewprofile.php' ?>">
 								<button class="button button-tertiary bottom-breathing-room-rel left-breathing-room-rel" name="profileButton" type="submit"><?= $LANG['H_MY_PROFILE'] ?></button>
@@ -46,7 +41,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 			</nav>
 			<div class="top-brand">
 				<div class="image-container">
-					<img src="<?= $CLIENT_ROOT ?>/images/layout/PCC_logo_DigitalfiddleheadTransp.png" alt="PCC digial fiddlehead logo">
+					<img src="<?= $CLIENT_ROOT ?>/images/layout/PCC_logo_banner.png" alt="Pteridophyte Collections Consortium logo">
 				</div>
 				<div class="brand-name">
 					<h1>Pteridophyte Collections Consortium</h1>
