@@ -3,9 +3,6 @@
 		<?php
 		//include($SERVER_ROOT . '/accessibility/module.php');
 		?>
-		<a href="$SERVER_ROOT"  title="Pteridophyte Collections Consortium" >
-			<img src="<?= $CLIENT_ROOT; ?>/images/layout/PCC.png"  alt="Pteridophyte Collections Consortium" />
-		</a>
 		<a href="https://www.nsf.gov" target="_blank" aria-label="<?= $LANG['F_VISIT_NSF'] ?>">
 			<img src="<?= $CLIENT_ROOT; ?>/images/layout/logo_nsf.gif" alt="<?= $LANG['F_NSF_LOGO'] ?>" />
 		</a>

@@ -25,11 +25,6 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 					<?php
 				} else {
 					?>
-					<span class="button button-tertiary">
-						<a onclick="window.location.href='#'">
-							<?= $LANG['H_CONTACT_US'] ?>
-						</a>
-					</span>
 					<span class="button button-secondary">
 						<a href="<?= $CLIENT_ROOT . "/profile/index.php?refurl=" . htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "?" . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>">
 							<?= $LANG['H_LOGIN'] ?>
@@ -41,7 +36,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 			</nav>
 			<div class="top-brand">
 				<div class="image-container">
-					<img src="<?= $CLIENT_ROOT ?>/images/layout/PCC_logo_DigitalfiddleheadTransp.png" alt="PCC digial fiddlehead logo">
+					<img src="<?= $CLIENT_ROOT ?>/images/layout/PCC_logo_banner.png" alt="Pteridophyte Collections Consortium logo">
 				</div>
 				<div class="brand-name">
 					<h1>Pteridophyte Collections Consortium</h1>
