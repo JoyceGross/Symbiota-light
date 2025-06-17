@@ -123,7 +123,15 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						</ul>
 					</li>
 					<li>
-						<a href="<?= $CLIENT_ROOT; ?>/misc/acknowledgements.php" >Acknowledgements</a>
+						<a href="#" >About</a>
+							<ul>
+							<li>
+								<a href="<?= $CLIENT_ROOT; ?>/misc/acknowledgements.php" >Acknowledgements</a>
+							</li>
+														<li>
+								<a href="<?= $CLIENT_ROOT; ?>/includes/usagepolicy.php" >Data Use & Citation</a>
+							</li>
+						</ul>
 					</li>
 					<li>
 						<a href='<?= $CLIENT_ROOT ?>/sitemap.php'>

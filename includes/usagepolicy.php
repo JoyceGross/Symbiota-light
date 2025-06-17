@@ -36,7 +36,10 @@
 			<div style="margin:10px">
 				Use one of the following formats to cite data retrieved from the <?php echo $DEFAULT_TITLE; ?> network:
 				<div style="font-weight:bold;margin-top:10px;">
-					General Citation:
+					General Citations:
+				</div>
+				<div = style="margin:10px;">
+					Rothfels, C. J., J. Lee, M. A. Sundue, A. R. Smith, A. Kasameyer, J. Gross, G. Holman, et al. 2025. The PteridoPortal: A publicly accessible collection of over three million records of extant and extinct pteridophytes. Applications in Plant Sciences 13(2): e70003. https://doi.org/10.1002/aps3.70003
 				</div>
 				<div style="margin:10px;">
 					<?php
