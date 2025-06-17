@@ -1,4 +1,8 @@
 <?php
+
+$PRIVATE_VIEWING_ONLY = true;
+$PRIVATE_VIEWING_OVERRIDES = ['/index.php', '/misc/contacts.php','/misc/aboutproject.php', '/profile/newprofile.php', '/profile/index.php'];  //These pages will always be accessible to public viewing.  Add to as needed. 
+
 $DEFAULT_LANG = 'en';			//Default language
 $DEFAULT_PROJ_ID = 0;
 $DEFAULTCATID = 0;
@@ -21,18 +25,19 @@ $LOG_PATH = $SERVER_ROOT . '/content/logs';					//Must be writable by Apache; wi
 $CSS_BASE_PATH = $CLIENT_ROOT . '/css';
 
 //Path to user uploaded images files.  Used by tinyMCE. This is NOT for collection images. See section immediatly below for collection image location
-$PUBLIC_IMAGE_UPLOAD_ROOT = '/content/imglib';
+$PUBLIC_MEDIA_UPLOAD_ROOT = '/content/imglib';
 
 //the root for the collection image directory
-$IMAGE_DOMAIN = '';				//Domain path to images, if different from portal
-$IMAGE_ROOT_URL = '';				//URL path to images
-$IMAGE_ROOT_PATH = '';			//Writable path to images, especially needed for downloading images
+$MEDIA_DOMAIN = '';				//Domain path to images, if different from portal
+$MEDIA_ROOT_URL = '';				//URL path to images
+$MEDIA_ROOT_PATH = '';			//Writable path to images, especially needed for downloading images
+
 
 //Pixel width of web images
 $IMG_WEB_WIDTH = 1400;
 $IMG_TN_WIDTH = 200;
 $IMG_LG_WIDTH = 3200;
-$IMG_FILE_SIZE_LIMIT = 300000;		//Files above this size limit and still within pixel width limits will still be resaved w/ some compression
+$MEDIA_FILE_SIZE_LIMIT = 300000;		//Files above this size limit and still within pixel width limits will still be resaved w/ some compression
 $IPLANT_IMAGE_IMPORT_PATH = '';		//Path used to map/import images uploaded to the iPlant image server (e.g. /home/shared/project-name/--INSTITUTION_CODE--/, the --INSTITUTION_CODE-- text will be replaced with collection's institution code)
 
 //$USE_IMAGE_MAGICK = 0;		//1 = ImageMagick resize images, given that it's installed (faster, less memory intensive)
@@ -53,7 +58,7 @@ $GBIF_ORG_KEY = '';                 //GBIF organization key for organization whi
 //Misc variables
 $DEFAULT_TAXON_SEARCH = 2;			//Default taxonomic search type: 1 = Any Name, 2 = Scientific Name, 3 = Family, 4 = Taxonomic Group, 5 = Common Name
 
-$GOOGLE_MAP_KEY = '';				//Needed for Google Map; get from Google
+$GOOGLE_MAP_KEY = '';				//Request from Google if Google Maps are desired. Leave empty for default Leaflet map.
 $MAPBOX_API_KEY = '';
 $MAP_THUMBNAILS = false;				//Display Static Map thumbnails within taxon profile, checklist, etc
 
@@ -74,7 +79,7 @@ $ACTIVATE_EXSICCATI = 0;			//Activates exsiccati fields within data entry pages;
 $ACTIVATE_GEOLOCATE_TOOLKIT = 0;	//Activates GeoLocate Toolkit located within the Processing Toolkit menu items
 $SEARCH_BY_TRAITS = 0;			//Activates search fields for searching by traits (if trait data have been encoded): 0 = trait search off; any number of non-zeros separated by commas (e.g., '1,6') = trait search on for the traits with these id numbers in table tmtraits.
 $CALENDAR_TRAIT_PLOTS = 0;			//Activates polar plots, in taxon profile, of the trait states listed: 0 = no plot; any number of non-zeros separated by commas (e.g., '1,6') = plots appear for the trait states with these id numbers (in table tmstates).
-
+//$AUTH_PROVIDER = 'oid';           //Activate Third Party Authentication using openID Connect (Addiotnal paramters defined in auth_config.php).  Leave this commented out if not in use;
 $IGSN_ACTIVATION = 0;
 
 //$SMTP_ARR = array('host'=>'','port'=>587,'username'=>'','password'=>'','timeout'=>60);  //Host is requiered, others are optional and can be removed
@@ -96,6 +101,7 @@ $SHOULD_INCLUDE_CULTIVATED_AS_DEFAULT=false;
 $AUTH_PROVIDER = 'oid';
 $LOGIN_ACTION_PAGE = 'openIdAuth.php';
 $SHOULD_USE_HARVESTPARAMS = false;
+$THIRD_PARTY_OID_AUTH_ENABLED = false;
 
 $SHOULD_USE_MINIMAL_MAP_HEADER = false;
 
@@ -104,6 +110,15 @@ if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERV
 	header('strict-transport-security: max-age=600');
 	$COOKIE_SECURE = true;
 }
+
+// Creates Togglable Overlay for GeoJSON file
+// Only Support with Leaflet Map
+// Supports of an area with the following properties:
+// filename : String - should be the name of the geoJSON located in the `content/geoJSON` directory.
+// label : String - Short text label to describe the overlay toggle
+// popup_template: String - Html string for what label should be generated on a GeoJSON feature. Will replace text like `[Property_name]` with a features property value if present
+// template_properties: Array[String] - List of property names to used in popup generation
+$GEO_JSON_LAYERS = [];
 
 //Base code shared by all pages; leave as is
 include_once('symbbase.php');
