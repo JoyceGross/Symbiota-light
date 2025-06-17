@@ -2,6 +2,9 @@
 if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/templates/header.' . $LANG_TAG . '.php'))
 	include_once($SERVER_ROOT . '/content/lang/templates/header.en.php');
 else include_once($SERVER_ROOT . '/content/lang/templates/header.' . $LANG_TAG . '.php');
+if($LANG_TAG == 'en' || !file_exists($SERVER_ROOT.'/content/lang/templates/header.' . $LANG_TAG . '.override.php'))
+	include_once($SERVER_ROOT . '/content/lang/templates/header.en.override.php');
+else include_once($SERVER_ROOT . '/content/lang/templates/header.' . $LANG_TAG . '.override.php');
 $SHOULD_USE_HARVESTPARAMS = $SHOULD_USE_HARVESTPARAMS ?? false;
 $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '/collections/search/index.php';
 ?>
@@ -44,8 +47,8 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 					<img src="<?= $CLIENT_ROOT ?>/images/layout/PCC_logo_banner.png" alt="Pteridophyte Collections Consortium logo">
 				</div>
 				<div class="brand-name">
-					<h1>Pteridophyte Collections Consortium</h1>
-					<h2>Ferns, lycophytes, and their extinct free-sporing relatives</h2>
+					<h1><?= $LANG['PCC'] ?></h1>
+					<h2><?= $LANG['PCC_EXPLAIN'] ?></h2>
 				</div>
 			</div>
 		</div>
@@ -67,7 +70,7 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						</a>
 						<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/collections/index.php" >Search Collections</a>
+								<a href="<?= $CLIENT_ROOT; ?>/collections/search/index.php" ><?= $LANG['H_COLLECTIONS'] ?></a>
 							</li>
 							<li>
 							<a href="<?= $CLIENT_ROOT ?>/collections/map/index.php" rel="noopener noreferrer">
@@ -75,13 +78,13 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 							</a>
 							</li>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist" ><?php echo (isset($LANG['H_DYN_LISTS'])?$LANG['H_DYN_LISTS']:'Dynamic Species List'); ?></a>
+								<a href="<?= $CLIENT_ROOT; ?>/checklists/dynamicmap.php?interface=checklist" ><?=$LANG['H_DYN_LISTS']; ?></a>
 							</li>
 							<li>
 								<a href="<?= $CLIENT_ROOT; ?>/collections/exsiccati/index.php" >Exsiccati</a>
 							</li>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydynamicdisplay.php" ><?php echo (isset($LANG['H_TAXONOMIC_EXPLORER'])?$LANG['H_TAXONOMIC_EXPLORER']:'Taxonomic Explorer'); ?></a>
+								<a href="<?= $CLIENT_ROOT; ?>/taxa/taxonomy/taxonomydynamicdisplay.php" ><?= $LANG['H_TAXONOMIC_EXPLORER']; ?></a>
 							</li>
 						</ul>
 					</li>
@@ -89,20 +92,20 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						<a href="#" >Images</a>
 						<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/imagelib/index.php" >Image Browser</a>
+								<a href="<?= $CLIENT_ROOT; ?>/imagelib/index.php" ><?= $LANG['H_IMAGE_BROWSER'] ?></a>
 							</li>
 							<li>
 							<a href="<?= $CLIENT_ROOT ?>/imagelib/search.php">
-							<?= $LANG['H_IMAGES'] ?>
+							<?= $LANG['H_IMAGE_SEARCH'] ?>
 						</a>
 							</li>
 						</ul>
 					</li>
 					<li>
-						<a href="<?= $CLIENT_ROOT; ?>/projects/index.php?pid=1" ><?php echo (isset($LANG['H_INVENTORIES'])?$LANG['H_INVENTORIES']:'Species Checklists'); ?></a>
+						<a href="<?= $CLIENT_ROOT; ?>/projects/index.php?pid=1" ><?= $LANG['H_INVENTORIES']; ?></a>
 						<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/projects/index.php?pid=1"><?php echo (isset($LANG['H_NORTH_AMER'])?$LANG['H_NORTH_AMER']:'North America'); ?></a>
+								<a href="<?= $CLIENT_ROOT; ?>/projects/index.php?pid=1"><?= $LANG['H_NORTH_AMER']; ?></a>
 							</li>
 						</ul>
 					</li>
@@ -110,26 +113,26 @@ $collectionSearchPage = $SHOULD_USE_HARVESTPARAMS ? '/collections/index.php' : '
 						<a href="<?= $CLIENT_ROOT; ?>/collections/specprocessor/crowdsource/index.php" >Crowdsource</a>
 					</li>
 					<li>
-						<a href="#" ><?php echo (isset($LANG['H_CONTACTS'])?$LANG['H_CONTACTS']:'Contacts'); ?></a>
+						<a href="#" ><?= $LANG['H_CONTACTS']; ?></a>
 						<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/collections/misc/collprofiles.php" ><?php echo (isset($LANG['H_PARTNERS'])?$LANG['H_PARTNERS']:'Partners'); ?></a>
+								<a href="<?= $CLIENT_ROOT; ?>/collections/misc/collprofiles.php" ><?= $LANG['H_PARTNERS']; ?></a>
 							</li>
 							<!--
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/misc/contacts.php" ><?php echo (isset($LANG['H_CONTACTS'])?$LANG['H_CONTACTS']:'Contacts'); ?></a>
+								<a href="<?= $CLIENT_ROOT; ?>/misc/contacts.php" ><?= $LANG['H_CONTACTS']; ?></a>
 							</li>
 							-->
 						</ul>
 					</li>
 					<li>
-						<a href="#" >About</a>
+						<a href="#" ><?= $LANG['ABOUT'] ?></a>
 							<ul>
 							<li>
-								<a href="<?= $CLIENT_ROOT; ?>/misc/acknowledgements.php" >Acknowledgements</a>
+								<a href="<?= $CLIENT_ROOT; ?>/misc/acknowledgements.php" ><?= $LANG['ACKNOWLEDGEMENTS'] ?></a>
 							</li>
 														<li>
-								<a href="<?= $CLIENT_ROOT; ?>/includes/usagepolicy.php" >Data Use & Citation</a>
+								<a href="<?= $CLIENT_ROOT; ?>/includes/usagepolicy.php" ><?= $LANG['DATA_USE_CITATION'] ?></a>
 							</li>
 						</ul>
 					</li>
