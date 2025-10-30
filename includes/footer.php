@@ -16,15 +16,15 @@
 	<p>
 		The PCC, and this data portal, were made possible by funding from the National Science Foundation’s
 		Advancing Digitization of Biological Collections (ADBC) program, grant numbers
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802504&HistoricalAwards=false" target="_blank">1802504</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802352&HistoricalAwards=false" target="_blank">1802352</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802134&HistoricalAwards=false" target="_blank">1802134</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802033&HistoricalAwards=false" target="_blank">1802033</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802270&HistoricalAwards=false" target="_blank">1802270</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802255&HistoricalAwards=false" target="_blank">1802255</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802239&HistoricalAwards=false" target="_blank">1802239</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802446&HistoricalAwards=false" target="_blank">1802446</a>,
-		<a href="http://www.nsf.gov/awardsearch/showAward?AWD_ID=1802305&HistoricalAwards=false" target="_blank">1802305</a>.
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802504" target="_blank">1802504</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802352" target="_blank">1802352</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802134" target="_blank">1802134</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802033" target="_blank">1802033</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802270" target="_blank">1802270</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802255" target="_blank">1802255</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802239" target="_blank">1802239</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802446" target="_blank">1802446</a>,
+		<a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=1802305" target="_blank">1802305</a>.
 	</p>
 	<p>
 		The pteridoportal taxonomic thesaurus is based on the
