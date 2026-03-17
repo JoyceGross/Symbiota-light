@@ -1,10 +1,11 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT . '/classes/TaxonProfile.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('taxa/index');
+
 Header('Content-Type: text/html; charset=' . $CHARSET);
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT . '/content/lang/taxa/index.' . $LANG_TAG . '.php'))
-	include_once($SERVER_ROOT . '/content/lang/taxa/index.' . $LANG_TAG . '.php');
-else include_once($SERVER_ROOT . '/content/lang/taxa/index.en.php');
 
 $taxonValue = array_key_exists('taxon', $_REQUEST) ? $_REQUEST['taxon'] : '';
 $tid = array_key_exists('tid', $_REQUEST) ? $_REQUEST['tid'] : '';
@@ -76,6 +77,11 @@ if($SYMB_UID){
 <?php
 $displayLeftMenu = false;
 include($SERVER_ROOT.'/includes/header.php');
+
+$splitSciname = $taxonManager->splitSciname();
+$cultivarEpithet = !empty($splitSciname['cultivarEpithet']) ? (' ' . $taxonManager->standardizeCultivarEpithet($splitSciname['cultivarEpithet'])) . ' ' : '';
+$tradeName = !empty($splitSciname['tradeName']) ? ($taxonManager->standardizeTradeName($splitSciname['tradeName']) . ' ') : '';
+$nonItalicizedScinameComponent = $cultivarEpithet . $tradeName;
 ?>
 <div id="popup-innertext">
 	<h1 class="page-heading screen-reader-only"><?= $taxonManager->getTaxonName() ?></h1>
@@ -102,7 +108,18 @@ include($SERVER_ROOT.'/includes/header.php');
 						}
 						?>
 						<div id="scinameDiv">
-							<?php echo '<span id="'.($taxonManager->getRankId() > 179?'sciname':'taxon').'">'.$taxonManager->getTaxonName().'</span>'; ?>
+							<?php
+								$splitSciname = $taxonManager->splitSciname();
+								$sciName = $splitSciname['base'];
+								$taxonRankId = $taxonManager->getRankId();
+								if($taxonRankId >= 180) $sciName = '<i>'.$sciName.'</i>';
+								$cultivarEpithet = !empty($splitSciname['cultivarEpithet']) ? (' ' . $taxonManager->standardizeCultivarEpithet($splitSciname['cultivarEpithet'])) . ' ' : '';
+								$tradeName = !empty($splitSciname['tradeName']) ? ($taxonManager->standardizeTradeName($splitSciname['tradeName']) . ' ') : '';
+								$nonItalicizedScinameComponent = $cultivarEpithet . $tradeName;
+								$sciName .= $nonItalicizedScinameComponent;
+								$taxonToDisplay = $taxonRankId > 179 ? $sciName : $taxonManager->getTaxonName();
+								echo '<span id="'.($taxonRankId > 179 ? 'sciname':'taxon').'">' . $taxonToDisplay . '</span>';
+							?>
 							<span id="author"><?php echo $taxonManager->getTaxonAuthor(); ?></span>
 							<?php
 							$parentLink = 'index.php?tid='.$taxonManager->getParentTid().'&clid=' . htmlspecialchars($clid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '&pid=' . htmlspecialchars($pid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . '&taxauthid='.$taxAuthId;
@@ -365,23 +382,25 @@ include($SERVER_ROOT.'/includes/header.php');
 
 										if(array_key_exists("url",$subArr)){
 											$imgUrl = $subArr["url"];
-											if(array_key_exists('IMAGE_DOMAIN', $GLOBALS) && substr($imgUrl, 0, 1) == '/'){
-												$imgUrl = $GLOBALS['IMAGE_DOMAIN'] . $imgUrl;
+											if(array_key_exists('MEDIA_DOMAIN', $GLOBALS) && substr($imgUrl, 0, 1) == '/'){
+												$imgUrl = $GLOBALS['MEDIA_DOMAIN'] . $imgUrl;
 											}
 											echo "<a href='index.php?tid=" . htmlspecialchars($subArr["tid"], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "&taxauthid=" . htmlspecialchars($taxAuthId, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "&clid=" . htmlspecialchars($clid, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) . "'>";
 
 											if($subArr["thumbnailurl"]){
 												$imgUrl = $subArr["thumbnailurl"];
-												if(array_key_exists('IMAGE_DOMAIN',$GLOBALS) && substr($subArr["thumbnailurl"],0,1)=="/"){
-													$imgUrl = $GLOBALS['IMAGE_DOMAIN'] . $subArr["thumbnailurl"];
+												if(array_key_exists('MEDIA_DOMAIN',$GLOBALS) && substr($subArr["thumbnailurl"],0,1)=="/"){
+													$imgUrl = $GLOBALS['MEDIA_DOMAIN'] . $subArr["thumbnailurl"];
 												}
 											}
-											elseif($image = exif_thumbnail($imgUrl)){
-												$imgUrl = 'data:image/jpeg;base64,' . base64_encode($image);
+											elseif($imgUrl){
+												if($image = exif_thumbnail($imgUrl)){
+													$imgUrl = 'data:image/jpeg;base64,' . base64_encode($image);
+												}
 											}
 											echo '<img src="' . $imgUrl . '" title="' . $subArr['caption'] . '" alt="' . $LANG['IMAGE_OF'] . ' ' . $sciNameKey . '" style="z-index:-1" />';
 											echo '</a>';
-											echo '<div style="text-align:right;position:relative;top:-26px;left:5px;" title="' . $LANG['PHOTOGRAPHER'] . ': ' . $subArr['photographer'] . '">';
+											echo '<div style="text-align:right;position:relative;top:-26px;left:5px;" title="' . $LANG['CREATOR'] . ': ' . $subArr['creator'] . '">';
 											echo '</div>';
 										}
 										elseif($isEditor){

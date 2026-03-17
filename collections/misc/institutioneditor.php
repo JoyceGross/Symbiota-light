@@ -1,54 +1,52 @@
 <?php
 include_once('../../config/symbini.php');
 include_once($SERVER_ROOT . '/classes/InstitutionManager.php');
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/collections/misc/institutioneditor.' . $LANG_TAG . '.php')) include_once($SERVER_ROOT.'/content/lang/collections/misc/institutioneditor.' . $LANG_TAG . '.php');
-else include_once($SERVER_ROOT . '/content/lang/collections/misc/institutioneditor.en.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('collections/misc/institutioneditor');
 
 if(!$SYMB_UID) header('Location: ../../profile/index.php?refurl=../collections/admin/institutioneditor.php?' . htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES));
 
-//since integers are sanizated here, we don't need to resanitize using htmlspecialchars
 $iid = array_key_exists('iid', $_REQUEST) ? filter_var($_REQUEST['iid'], FILTER_SANITIZE_NUMBER_INT) : '';
 $targetCollid = array_key_exists('targetcollid', $_REQUEST) ? filter_var($_REQUEST['targetcollid'], FILTER_SANITIZE_NUMBER_INT) : '';
-
-//emode is alway 0 or 1, thus we can explicit set to 1 whenever emode is true. No sanitation needed because value is not set as input value, which could be anything.
 $eMode = !empty($_REQUEST['emode']) ? 1 : 0;
-
-//$instCodeDefault this does need to be sanitized, but better to do further down where it is used as output. But OK to sanitize here, and maybe better if used numerous times as output.
-//But not if it is set within the class to be used within an SQL statement. Then it's needs to be sanitized beyond the statements that send it to the class
 $instCodeDefault = array_key_exists('instcode',$_REQUEST) ? $_REQUEST['instcode'] : '';
-
-// $formSubmit does not have to be sanitized because it's only used within condition statements and not output to page
 $formSubmit = array_key_exists('formsubmit', $_POST) ? $_POST['formsubmit'] : '';
 
 $instManager = new InstitutionManager();
-
-// text with $fullCollList is sanitized using cleanOutStr (including htmlspecialchars) within getCollectionList function.
-// The iid value does not have to be sanitized because it is defined as an int, but CheckMarx probably won't know this a might have a problem
 $fullCollList = $instManager->getCollectionList();
 $instManager->setInstitutionId($iid);
 
 //Create a list of collection that are linked to this institutions
 $collList = array();
-foreach($fullCollList as $k => $v){
-	//Values were already sanitized when $fullCollList was obtained from DB, thus we should not double sanitized here (e.g. &amp; becomes &amp;amp;
-	if($v['iid'] == $iid) $collList[$k] = $v['name'];
+if($iid){
+	foreach($fullCollList as $k => $v){
+		if($v['iid'] == $iid) $collList[$k] = $v['name'];
+	}
 }
 
 $editorCode = 0;
-$statusStr = '';
 if($IS_ADMIN){
 	$editorCode = 3;
 }
 elseif(array_key_exists('CollAdmin', $USER_RIGHTS)){
 	$editorCode = 1;
-	if($collList && array_intersect($USER_RIGHTS['CollAdmin'], array_keys($collList))){
-		$editorCode = 2;
+	if($iid){
+		if(!$collList){
+			//User can edit because institution is not linked to any collection
+			$editorCode = 2;
+		}
+		elseif(array_intersect($USER_RIGHTS['CollAdmin'], array_keys($collList))){
+			//User can edit because the are an administrator for one of the collections that are linked to this institution
+			$editorCode = 2;
+		}
 	}
 }
+$statusStr = '';
+
 if($editorCode){
 	if($formSubmit == 'Add Institution'){
 		if($instManager->insertInstitution($_POST)){
-			// Can only be set to int within class. Let's see if checkmarx knows this.
 			$iid = $instManager->getInstitutionId();
 			$statusStr = 'SUCCESS, institution added!';
 			if($targetCollid) header('Location: ../misc/collprofiles.php?collid=' . $targetCollid);
@@ -67,20 +65,20 @@ if($editorCode){
 					$statusStr = 'ERROR updating institutions record: ' . $instManager->getErrorMessage();
 				}
 			}
-			elseif(!empty($_POST['deliid'])){
-				if($instManager->deleteInstitution($_POST['deliid'])){
+			elseif($formSubmit == 'deleteInstitution'){
+				if($instManager->deleteInstitution($iid)){
 					$statusStr = 'SUCCESS! Institution deleted.';
 					$iid = 0;
 				}
 				else{
-					$statusStr = 'Unable to delete: ';
+					$statusStr = 'ERROR: unable to delete due to ';
 					$errorStr = $instManager->getErrorMessage();
 					if($errorStr == 'LINKED_COLLECTIONS'){
-						$statusStr .= 'following collections need to be unlinked before deletion is allowed';
+						$statusStr .= 'following linked collections';
 						$statusStr .= '<ul><li>' . implode('</li><li>', $instManager->getWarningArr()) . '</li></ul>';
 					}
 					elseif($errorStr == 'LINKED_LOANS'){
-						$statusStr .= 'institution is linked to ' . count($instManager->getWarningArr()) . ' loans';
+						$statusStr .= 'institution linked to ' . count($instManager->getWarningArr()) . ' loans';
 					}
 					else{
 						$errorStr = 'ERROR deleting institution: ' . $errorStr;
@@ -178,17 +176,11 @@ include($SERVER_ROOT.'/includes/header.php');
 <!-- This is inner text! -->
 <div role="main" id="innertext">
 	<h1 class="page-heading"><?php echo $LANG['INSTITUTION_EDITOR']; ?></h1>
-	<div id="dialog" title="" style="display: none;">
-		<div id="dialogmsg"></div>
-		<select id="getresult">
-		</select>
-	</div>
 	<?php
 	if($statusStr){
 		?>
 		<hr />
 		<div style="margin:20px;color:<?php echo (substr($statusStr,0,5)=='ERROR'?'red':'green'); ?>;">
-			<?php //$statusStr is only output from db engine, thus not a big threat, but Checkmarx won't know that, and better safe than sorry ?>
 			<?= htmlspecialchars($statusStr, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) ?>
 		</div>
 		<hr />
@@ -196,9 +188,6 @@ include($SERVER_ROOT.'/includes/header.php');
 	}
 	if($iid){
 		if($instArr = $instManager->getInstitutionData()){
-			//Cleaning this in function when data is harvested is fine, but only if data is used as output by all pages.
-			//If data from fuction is used by another class/page to be reinserted into data, than that would be a problem, but this is rare.
-			$instArr = $instManager->cleanOutArray($instArr);
 			?>
 			<div style="float:right;">
 				<a href="institutioneditor.php">
@@ -227,7 +216,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							</div>
 							<div class="editdiv" style="display:<?php echo $eMode?'block':'none'; ?>;">
 								<input name="institutioncode" type="text" value="<?php echo $instArr['institutioncode']; ?>" />
-								<button name="getgrscicoll" type="button" value="Update from GrSciColl" onClick="grscicoll('insteditform')"><?php echo $LANG['UPDATE_GRSCICOLL']; ?></button>
+								<button name="getgrscicoll" type="button" value="Update from GrSciColl" style="display:inline;" onClick="grscicoll('insteditform')"><?php echo $LANG['UPDATE_GRSCICOLL']; ?></button>
 							</div>
 						</div>
 						<div style="position:relative;clear:both;">
@@ -276,7 +265,7 @@ include($SERVER_ROOT.'/includes/header.php');
 						</div>
 						<div style="position:relative;clear:both;">
 							<div style="float:left;width:155px;font-weight:bold;">
-								<?php echo $LANG['CITY']; ?>City:
+								<?php echo $LANG['CITY']; ?>:
 							</div>
 							<div class="editdiv" style="display:<?php echo $eMode?'none':'block'; ?>;">
 								<?php echo $instArr['city']; ?>
@@ -388,7 +377,6 @@ include($SERVER_ROOT.'/includes/header.php');
 						<div>
 							<?php
 							if($collList){
-								//$collName is cleaned within function that built data array
 								foreach($collList as $id => $collName){
 									echo '<div style="margin:5px;font-weight:bold;clear:both;height:15px;">';
 									echo '<div style="float:left;"><a href="../misc/collprofiles.php?collid=' . $id . '">' . $collName . '</a></div> ';
@@ -407,7 +395,6 @@ include($SERVER_ROOT.'/includes/header.php');
 							<?php
 							//Don't show collection that already linked and only show one that user can admin
 							$addList = array();
-							//$fullCollList cleaned when created
 							foreach($fullCollList as $collid => $collArr){
 								if($collArr['iid'] != $iid){
 									if($IS_ADMIN || (isset($USER_RIGHTS["CollAdmin"]) && in_array($collid,$USER_RIGHTS["CollAdmin"]))){
@@ -441,8 +428,8 @@ include($SERVER_ROOT.'/includes/header.php');
 							<legend><b><?php echo $LANG['DEL_INSTITUTION']; ?></b></legend>
 							<form name="instdelform" action="institutioneditor.php" method="post" onsubmit="return confirm('<?php echo $LANG['WANT_TO_DELETE_INST']; ?>')">
 								<div style="position:relative;clear:both;">
-									<button class="button-danger" name="formsubmit" type="submit" value="Delete Institution" <?php if($collList) echo 'disabled'; ?> ><?php echo $LANG['DEL_INSTITUTION']; ?></button>
-									<input name="deliid" type="hidden" value="<?php echo $iid; ?>" />
+									<input name="iid" type="hidden" value="<?= $iid ?>">
+									<button class="button-danger" name="formsubmit" type="submit" value="deleteInstitution" <?php if($collList) echo 'disabled'; ?> ><?= $LANG['DEL_INSTITUTION'] ?></button>
 									<?php
 									if($collList) echo '<div style="margin:15px;color:red;">' . $LANG['DELETION_OF_ADDRESS'] . '</div>';
 									?>
@@ -473,7 +460,7 @@ include($SERVER_ROOT.'/includes/header.php');
 							</div>
 							<div>
 								<input name="institutioncode" type="text" value="<?= htmlspecialchars($instCodeDefault, ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) ?>" />
-								<button name="getgrscicoll" type="button" value="Get data from GrSciColl" onClick="grscicoll('instaddform')"><?php echo $LANG['GET_DATA_FROM_GRSCICOLL']; ?></button>
+								<button name="getgrscicoll" type="button" value="Get data from GrSciColl" style="display:inline;" onClick="grscicoll('instaddform')"><?php echo $LANG['GET_DATA_FROM_GRSCICOLL']; ?></button>
 							</div>
 						</div>
 						<div style="position:relative;clear:both;">
@@ -618,7 +605,11 @@ include($SERVER_ROOT.'/includes/header.php');
 							foreach($instList as $iid => $iArr){
 								echo '<li><a href="institutioneditor.php?iid='.$iid.'">';
 								echo $iArr['institutionname'].' ('.$iArr['institutioncode'].')';
-								if($editorCode == 3 || array_intersect(explode(',',$iArr['collid']),$USER_RIGHTS["CollAdmin"])){
+								$editsAllowed = false;
+								if($editorCode == 3) $editsAllowed = true;
+								elseif(!$iArr['collid']) $editsAllowed = true;
+								elseif(array_intersect(explode(',', $iArr['collid']), $USER_RIGHTS['CollAdmin'])) $editsAllowed = true;
+								if($editsAllowed){
 									echo ' <a href="institutioneditor.php?emode=1&iid=' . $iid . '"><img src="' . $CLIENT_ROOT . '/images/edit.png" style="width:1.2em;" /></a>';
 								}
 								echo '</a></li>';

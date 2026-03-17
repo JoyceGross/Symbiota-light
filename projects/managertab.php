@@ -1,7 +1,10 @@
 <?php
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ImInventories.php');
-include_once($SERVER_ROOT.'/content/lang/projects/index.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('projects/index');
+
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $pid = $_REQUEST['pid'];
@@ -43,9 +46,9 @@ $projManager->setPid($pid);
 			<input name="pid" type="hidden" value="<?php echo $pid; ?>" />
 			<input name="tabindex" type="hidden" value="1" />
 			<input name="emode" type="hidden" value="1" />
-			<button name="projsubmit" type="submit">
-				<?= $LANG['ADD_TO_MANAGER_LIST'] ?>
-			</button>
+			<div style="margin: 10px">
+				<button name="projsubmit" type="submit" value="Add to Manager List"><?= $LANG['ADD_TO_MANAGER_LIST'] ?></button>
+			</div>
 		</form>
 	</fieldset>
 </div>

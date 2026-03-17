@@ -2,7 +2,10 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/PermissionsManager.php');
 include_once($SERVER_ROOT.'/classes/ProfileManager.php');
-@include_once($SERVER_ROOT.'/content/lang/profile/usermanagement.'.$LANG_TAG.'.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('profile/usermanagement');
+
 header("Content-Type: text/html; charset=".$CHARSET);
 
 $loginAs = array_key_exists("loginas",$_REQUEST) ? htmlspecialchars($_REQUEST["loginas"], ENT_COMPAT | ENT_HTML401 | ENT_SUBSTITUTE) : "";
@@ -90,8 +93,8 @@ if($IS_ADMIN){
 		<h1 class="page-heading"><?= $LANG['USER_MNGMT']; ?></h1>
 		<div style="float:right;">
 			<div style="margin:10px 0px 15px 0px;">
-				<section class="fieldset-like" style="background-color:#FFFFCC;">
-					<h2> <span> <?php echo (isset($LANG['SEARCH'])?$LANG['SEARCH']:'Search'); ?> </span> </h2>
+				<section class="fieldset-like-box">
+					<h2> <span> <?php echo (isset($LANG['SEARCH_BOX'])?$LANG['SEARCH_BOX']:'Search'); ?> </span> </h2>
 					<form name='searchform1' action='usermanagement.php' method='post'>
 					<label for="searchterm" > <?php echo (isset($LANG['LAST_OR_LOGIN'])?$LANG['LAST_OR_LOGIN']:'Last Name or Login Name'); ?>: </label> <br>
 						<input type="text" id="searchterm" name="searchterm" title="<?php echo (isset($LANG['ENTER_LAST'])?$LANG['ENTER_LAST']:'Enter Last Name'); ?>" /><br/>
@@ -526,7 +529,7 @@ if($IS_ADMIN){
 						</div>
 						<?php
 						//Collection projects
-						$collArr = $userManager->getCollectionMetadata('Preserved Specimens');
+						$collArr = $userManager->getCollectionMetadata('Preserved Specimens,Fossil Specimens');
 						$obsArr = $userManager->getCollectionMetadata('Observations');
 						$personalObsArr = $userManager->getCollectionMetadata('General Observations');
 						if(array_key_exists("CollAdmin",$userPermissions)){
@@ -740,7 +743,7 @@ if($IS_ADMIN){
 					}
 					?>
 					<form method="POST" action="<?php echo $CLIENT_ROOT ?>/profile/newprofile.php">
-						<button id="adminRegister" name="adminRegister" class="button button-tertiary" type="submit" value="1">
+						<button id="adminRegister" name="adminRegister" class="button button-secondary bottom-breathing-room" type="submit" value="1">
 							<?php echo isset($LANG['CREATE_NEW_USER']) ? $LANG['CREATE_NEW_USER'] : 'Create New User'; ?>
 						</button>
 					</form>

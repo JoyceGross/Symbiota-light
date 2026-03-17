@@ -1,7 +1,7 @@
 <?php
-include_once($SERVER_ROOT.'/classes/Manager.php');
-include_once($SERVER_ROOT.'/classes/TaxonomyUtilities.php');
-include_once($SERVER_ROOT.'/classes/EOLUtilities.php');
+include_once($SERVER_ROOT . '/classes/Manager.php');
+include_once($SERVER_ROOT . '/classes/EOLUtilities.php');
+include_once($SERVER_ROOT . '/classes/utilities/TaxonomyUtil.php');
 
 class TaxonomyHarvester extends Manager{
 
@@ -379,7 +379,7 @@ class TaxonomyHarvester extends Manager{
 					$taxonArr['sciname'] = $m[1].' '.$m[2];
 				}
 			}
-			$translatedTaxonArr = TaxonomyUtilities::parseScientificName($taxonArr['sciname'], $this->conn, $taxonArr['rankid'], $this->kingdomName);
+			$translatedTaxonArr = TaxonomyUtil::parseScientificName($taxonArr['sciname'], $this->conn, $taxonArr['rankid'], $this->kingdomName);
 			if(!isset($taxonArr['unitname1'])) $taxonArr = array_merge($translatedTaxonArr, $taxonArr);
 			if(isset($translatedTaxonArr['unitind1']) && $translatedTaxonArr['unitind1']) $taxonArr['unitind1'] = $translatedTaxonArr['unitind1'];
 			if(isset($translatedTaxonArr['unitind2']) && $translatedTaxonArr['unitind2']) $taxonArr['unitind2'] = $translatedTaxonArr['unitind2'];
@@ -983,7 +983,10 @@ class TaxonomyHarvester extends Manager{
 						$taxonArr['author'] = $unitArr['authors'];
 						$rankID = $this->getRankId($unitArr['rank']);
 						if($rankID) $taxonArr['rankid'] = $rankID;
-						$taxonArr['source'] = 'Via fDex: '.$unitArr['recordSource'];
+						$sourceStr = 'Via fDex: '.$unitArr['recordSource'];
+						if(!empty($unitArr['mbNumber'])) $sourceStr .= '; mbNumber: ' . $unitArr['mbNumber'];
+						if(!empty($unitArr['otherID'])) $sourceStr .= '; otherID: ' . $unitArr['otherID'];
+						$taxonArr['source'] = $sourceStr;
 						$taxonArr['notes'] = 'taxonomicStatus: '.$unitArr['taxonomicStatus'].'; currentStatus: '.$unitArr['currentStatus'];
 						if(isset($unitArr['parentTaxon'])){
 							$parentTaxon = $unitArr['parentTaxon'];
@@ -1064,7 +1067,7 @@ class TaxonomyHarvester extends Manager{
 						if($parentTid) $taxonArr['parent']['tid'] = $parentTid;
 					}
 					if(isset($unitArr['taxonomicStatus']) && $unitArr['taxonomicStatus'] != 'accepted' && isset($unitArr['acceptedNameUsage'])){
-						$acceptedArr = TaxonomyUtilities::parseScientificName($unitArr['acceptedNameUsage'], $this->conn, $this->kingdomName);
+						$acceptedArr = TaxonomyUtil::parseScientificName($unitArr['acceptedNameUsage'], $this->conn, $this->kingdomName);
 						$tidAccepted = $this->getTid($taxonArr);
 						if(!$tidAccepted) $tidAccepted = $this->addBryoNamesTaxon($acceptedArr);
 					}
@@ -1197,7 +1200,7 @@ class TaxonomyHarvester extends Manager{
 		}
 		//Check to see sciname is in taxon table, but perhaps not linked to current thesaurus
 		$sql = 'SELECT tid FROM taxa WHERE (sciname = "'.$this->cleanInStr($taxonArr['sciname']).'") ';
-		if($this->kingdomName) $sql .= 'AND (kingdomname = "'.$this->kingdomName.'" OR kingdomname = "") ';
+		if($this->kingdomName) $sql .= 'AND (kingdomName = "'.$this->kingdomName.'" OR kingdomName = "" OR kingdomName IS NULL) ORDER BY kingdomName DESC';
 		$rs = $this->conn->query($sql);
 		if($r = $rs->fetch_object()){
 			$newTid = $r->tid;
@@ -1452,7 +1455,7 @@ class TaxonomyHarvester extends Manager{
 			$rankid = array_key_exists('rankid', $taxonArr)?$taxonArr['rankid']:0;
 			$sciname = array_key_exists('sciname', $taxonArr)?$taxonArr['sciname']:'';
 			if(!$sciname && array_key_exists('scientificName', $taxonArr)) $sciname = $taxonArr['scientificName'];
-			if($sciname) $taxonArr = array_merge(TaxonomyUtilities::parseScientificName($sciname,$this->conn,$rankid,$this->kingdomName), $taxonArr);
+			if($sciname) $taxonArr = array_merge(TaxonomyUtil::parseScientificName($sciname,$this->conn,$rankid,$this->kingdomName), $taxonArr);
 		}
 	}
 
@@ -1625,14 +1628,16 @@ class TaxonomyHarvester extends Manager{
 			$rs = $this->conn->query($sql);
 			while($r = $rs->fetch_object()){
 				$this->langArr[$r->langname] = $r->langid;
-				$this->langArr[$r->iso639_1] = $r->langid;
+				if (!empty($r->iso639_1)) {
+					$this->langArr[$r->iso639_1] = $r->langid;
+				}
 			}
 			$rs->free();
 		}
 	}
 
 	public function rebuildHierarchyEnumTree(){
-		$status = TaxonomyUtilities::rebuildHierarchyEnumTree($this->conn);
+		$status = TaxonomyUtil::rebuildHierarchyEnumTree($this->conn);
 		if($status === true){
 			return true;
 		}
@@ -1642,7 +1647,7 @@ class TaxonomyHarvester extends Manager{
 	}
 
 	public function buildHierarchyEnumTree(){
-		$status = TaxonomyUtilities::buildHierarchyEnumTree($this->conn);
+		$status = TaxonomyUtil::buildHierarchyEnumTree($this->conn);
 		if($status === true){
 			return true;
 		}

@@ -2,8 +2,10 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
 include_once($SERVER_ROOT.'/classes/MapSupport.php');
-if($LANG_TAG != 'en' && file_exists($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php')) include_once($SERVER_ROOT.'/content/lang/checklists/checklist.'.$LANG_TAG.'.php');
-else include_once($SERVER_ROOT.'/content/lang/checklists/checklist.en.php');
+include_once($SERVER_ROOT . '/classes/utilities/Language.php');
+
+Language::load('checklists/checklist');
+
 header('Content-Type: text/html; charset='.$CHARSET);
 
 $action = array_key_exists('submitaction',$_REQUEST) ? $_REQUEST['submitaction'] : '';
@@ -133,7 +135,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 		var lang_SELECT_TAXON = '<?= $LANG['SELECT_TAXON'] ?>';
 	</script>
 	<script type="text/javascript" src="../js/symb/checklists.checklist.js"></script>
-	
+
 	<style>
 		<?php
 		if($printMode){
@@ -336,7 +338,8 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 						</div>
 					</div>
 					<hr />
-					<div class="printoff">
+					<div style="display:flex; justify-content:space-between;" class="printoff">
+						<div>
 						<?php
 						$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 						$pageCount = ceil($clManager->getTaxaCount()/$taxaLimit);
@@ -350,7 +353,9 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 							if(($pageNumber) == $x) echo '</b>';
 							else echo '</a>';
 						}
-						if($showImages){
+						?>
+						</div>
+						<?php if($showImages){
 							?>
 							<div style="float:right;">
 								<?php echo $LANG['IMAGE_SRC']; ?>:
@@ -370,12 +375,12 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 							$u = (array_key_exists('url',$sppArr) ? $sppArr['url'] : '');
 							$imgSrc = ($tu?$tu:$u);
 							?>
-							<div class="tndiv">
+							<div class="tndiv bottom-breathing-room-rel-sm">
 								<div class="tnimg" style="<?php echo ($imgSrc?'' : 'border:1px solid black;'); ?>">
 									<?php
 									$spUrl = "../taxa/index.php?taxauthid=1&taxon=$tid&clid=".$clid;
 									if($imgSrc){
-										$imgSrc = (array_key_exists('IMAGE_DOMAIN', $GLOBALS) && substr($imgSrc, 0, 4) != 'http' ? $GLOBALS['IMAGE_DOMAIN'] : "") . $imgSrc;
+										$imgSrc = (array_key_exists('MEDIA_DOMAIN', $GLOBALS) && substr($imgSrc, 0, 4) != 'http' ? $GLOBALS['MEDIA_DOMAIN'] : "") . $imgSrc;
 										echo "<a href='" . $spUrl . "' target='_blank'>";
 										echo "<img src='" . $imgSrc . "' />";
 										echo "</a>";
@@ -402,7 +407,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 											foreach($clidArr as $id){
 												?>
 												<a href="#" onclick="return openPopup('clsppeditor.php?tid=<?php echo $tid . '&clid=' . $id; ?>','editorwindow');">
-													<img src='../images/edit.png' style='width:1.3em;' alt="<?php echo $LANG['IMG_EDIT_DETAILS']; ?>" title='<?php echo $LANG['EDIT_DETAILS']; ?>' />
+													<img src='../images/edit.png' style='width:1.3em;' alt="<?php echo $LANG['EDIT_DETAILS']; ?>" title='<?php echo $LANG['EDIT_DETAILS']; ?>' />
 												</a>
 												<?php
 											}
@@ -470,18 +475,26 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 							if(array_key_exists('vern',$sppArr)){
 								echo ' - <span class="vern-span">'.$sppArr['vern'] . '</span>';
 							}
-							if($clid && $clArray['dynamicsql']){
+							if($clid && $clArray['dynamicsql'] && $SYMB_UID){
 								?>
 								<span class="view-specimen-span printoff">
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid . "&targetclid=" . $clid . "&targettid=" . $tid;?>" target="_blank" style="text-decoration:none;">
 										<img src="../images/list.png" style="width:1.2em;" title="<?php echo $LANG['VIEW_RELATED']; ?>" />
 									</a>
 									<?php
-									if(isset($dynamPropsArr)){
+									if(isset($dynamPropsArr) && isset($dynamPropsArr['externalservice']) && $dynamPropsArr['externalservice'] == 'inaturalist'){
 										$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
 										$arrForExternalServiceApi .= ($arrForExternalServiceApi?',' : '') . "'" . $scinameasid . "'";
-										echo '<a href="#" target="_blank" id="a-'.$scinameasid.'">';
-										echo '<img src="../images/icons/inaturalist.png" style="width:1.2em;display:none;" title="'. $LANG['LINKTOINAT'] . '" id="i-' . $scinameasid . '" />';
+										$url = 'tools/linkExternalVouchers.php?' . http_build_query([
+											'taxon_name' => $sppArr['sciname'],
+											'target_tid' => $tid,
+											'clid' => $clid,
+											'external_id' => $dynamPropsArr['externalserviceid'] ?? null,
+											'external_service' => $dynamPropsArr['externalservice'] ?? null,
+										]);
+
+										echo '<a class="editspp" style="display: none" href="#" onclick="openPopup(`' . $url . '`, `External iNaturalist Vouchers`)" >';
+										echo '<img src="../images/icons/inaturalist.png" style="width:1.2em;" title="'. $LANG['LINKTOINAT'] . '" />';
 										echo '</a>';
 									}
 									?>
@@ -609,7 +622,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 										<div class="printoff" style="padding:5px;">
 											<a href="../ident/key.php?clid=<?php echo $clid . "&pid=" . $pid . "&dynclid=" . $dynClid; ?>&taxon=All+Species">
 												<div style="display: flex; align-items: center;">
-														Open Symbiota Key
+													<?= $LANG['OPEN_KEY']; ?>
 													<img src='../images/key.png' style="margin-left: 0.5rem; width:1.3em;" aria-label="<?php echo $LANG['IMG_OPEN_KEY']; ?>" alt="<?php echo $LANG['IMG_OPEN_KEY']; ?>" title='<?php echo $LANG['OPEN_KEY']; ?>' />
 												</div>
 											</a>
@@ -622,7 +635,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 											<ul id="game-dropdown">
 												<li>
 													<span style="display: flex; align-items: center;" onmouseover="mopen('m1')" onmouseout="mclosetime()" onfocus="mopen('m1')" onblur="mclosetime()" tabindex="0">
-														<span style=" color: var(--link-color); font-size:1rem; text-decoration: underline;">Games</span> <img src="../images/games/games.png" style="width:2em" alt="<?php echo $LANG['GAMES']; ?>"/>
+														<span style=" color: var(--link-color); font-size:1rem; text-decoration: underline;"><?= $LANG['GAMES'] ?></span> <img src="../images/games/games.png" style="width:2em" alt="<?php echo $LANG['GAMES']; ?>"/>
 													</span>
 													<div id="m1" onmouseover="mcancelclosetime()" onmouseout="mclosetime()">
 														<?php
@@ -733,7 +746,7 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 						?>
 						<div class="editspp" style="width:250px;display:none;">
 							<form id='addspeciesform' action='checklist.php' method='post' name='addspeciesform' onsubmit="return validateAddSpecies(this);">
-								<fieldset style='margin:5px 0px 5px 5px;background-color:#FFFFCC;'>
+								<fieldset class="fieldset-like-box">
 									<legend><b><?php echo $LANG['NEWSPECIES']; ?></b></legend>
 									<div>
 										<?php echo $LANG['TAXON']; ?>:<br/>
@@ -821,25 +834,6 @@ $taxonFilter = htmlspecialchars($taxonFilter, ENT_COMPAT | ENT_HTML401 | ENT_SUB
 										</a>
 									</div>
 								</div>
-								<?php
-							}
-							if(false && $clArray['dynamicsql']){
-								//Temporarily turned off
-								?>
-								<span style="margin:5px">
-									<a href="../collections/map/index.php?clid=<?php echo $clid . '&cltype=all&taxonfilter=' . $taxonFilter; ?>&db=all&type=1&reset=1">
-										<?php
-										if($coordArr){
-											echo '<img src="../images/world.png" style="width:30px" title="' . $LANG['OCCUR_DYNAMIC_MAP'] . '" alt="' . $LANG['IMG_OCCUR_DYNAMIC_MAP'] . '" />';
-										}
-										else{
-											$polygonCoordArr = $clManager->getPolygonCoordinates();
-											$googleUrl .= '&markers=size:tiny|'.implode('|',$polygonCoordArr);
-											echo '<img src="'.$googleUrl.'" style="border:0px;" /><br/>';
-										}
-										?>
-									</a>
-								</span>
 								<?php
 							}
 							?>
