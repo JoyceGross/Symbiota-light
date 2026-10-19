@@ -2,4 +2,16 @@
 Place your CSS customizations here.
 This stylesheet is defined last and will override all previously loaded sheets. You may reference variables defined in variables.css 
  */
- 
+
+ @media screen and (min-width: 1024px) {
+    div.brand-name h1, div.brand-name h2{
+        width: max-content;
+    }
+}
+
+.button-tertiary {
+  background-color: none;
+  border: 1px solid var(--bright-color);
+  padding: 0.5rem 0.9rem;
+  color: black;
+}

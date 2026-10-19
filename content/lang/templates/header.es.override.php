@@ -9,6 +9,13 @@
  e.g. override: $LANG['H_COLLECTIONS'] = 'Search Lichen Collections';
 */
 
+$LANG['PCC'] = 'Consorcio de Colecciones de Pteridofitas';
+$LANG['PCC_EXPLAIN'] = 'Helechos, licofitas y sus parientes extintos de esporas libres';
 
+$LANG['H_NORTH_AMER'] = 'Norteamérica';
+
+$LANG['ACKNOWLEDGEMENTS'] = 'Agradecimientos';
+$LANG['DATA_USE_CITATION'] = 'Uso y cita de datos';
+$LANG['ABOUT'] = 'Acerca de';
 
 ?>
